@@ -16,15 +16,18 @@ model_kwargs = {
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    response = await client.chat.completions.create(
-        messages=[{"role": "user", "content": message.content}],
-        **model_kwargs
-    )
+    # send initial response as an empty string
+    response_message = cl.Message(content="")
+    await response_message.send()
 
-    # https://platform.openai.com/docs/guides/chat-completions/response-format
-    response_content = response.choices[0].message.content
+    # set up model to stream response based on message
+    stream = await client.chat.completions.create(messages=[{"role": "user", "content": message.content}],
+                                                  stream=True, **model_kwargs)
+    # send over parts of response as stream as they're ready
+    async for part in stream:
+        if token := part.choices[0].delta.content or "":
+            await response_message.stream_token(token)
+    # finish the response message; no more updates
+    await response_message.update()
 
-    await cl.Message(
-        content=response_content,
-    ).send()
 
