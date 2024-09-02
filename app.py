@@ -2,13 +2,19 @@ import chainlit as cl
 import openai
 import os
 
-# api_key = os.getenv("OPENAI_API_KEY")
-api_key = os.getenv("RUNPOD_API_KEY")
+open_ai_key = os.getenv("OPENAI_API_KEY")
+runpod_key = os.getenv("RUNPOD_API_KEY")
+
+api_key = runpod_key
+
 runpod_serverless_id = os.getenv("RUNPOD_SERVERLESS_ID")
 
+# Can only use one endpoint at a time
+openapi_endpoint = "https://api.openai.com/v1"
+runpod_endpoint = f"https://api.runpod.ai/v2/{runpod_serverless_id}/openai/v1"
 
-# endpoint_url = "https://api.openai.com/v1"
-endpoint_url = f"https://api.runpod.ai/v2/{runpod_serverless_id}/openai/v1"
+# Make sure endpoint and key variables match
+endpoint_url = runpod_endpoint
 
 client = openai.AsyncClient(api_key=api_key, base_url=endpoint_url)
 
